@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YourName Photography</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet" />
+
+  <!-- Basic CSP -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https: data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self';" />
+
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --fg: #ffffff;
+      --border: #333333;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Inter", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      display: grid;
+      grid-template-columns: 200px 1fr; /* slightly narrower sidebar */
+      height: 100vh;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      padding: 2rem 1rem;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    .sidebar h1 {
+      font-size: 1.5rem; /* smaller title */
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+    .sidebar nav a {
+      display: block;
+      margin: 0.25rem 0;
+      font-size: 0.75rem; /* reduced font size */
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--fg);
+      transition: opacity 0.2s ease;
+    }
+    .sidebar nav a:hover { opacity: 0.6; }
+    .sidebar nav a.active { text-decoration: underline; }
+    .sidebar .social { margin-top: auto; font-size: 0.7rem; }
+
+    /* ===== MAIN ===== */
+    main { overflow: hidden; display: flex; flex-direction: column; }
+
+    .gallery-row {
+      display: flex;
+      gap: 1rem;
+      padding: 2rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+    }
+    .gallery-row img {
+      height: 80vh;
+      object-fit: cover;
+      flex-shrink: 0;
+      scroll-snap-align: center;
+      cursor: pointer;
+      border-radius: 0.25rem;
+      transition: transform 0.3s ease;
+    }
+    .gallery-row img:hover { transform: scale(1.02); }
+
+    /* ===== LIGHTBOX ===== */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      z-index: 100;
+    }
+    .lightbox.active { visibility: visible; opacity: 1; }
+    .lightbox img { max-width: 90%; max-height: 90%; border-radius: 0.25rem; }
+    .lightbox::after {
+      content: "\2715"; /* ✕ */
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      font-size: 2rem;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 800px) {
+      body { grid-template-columns: 1fr; }
+      .sidebar {
+        position: fixed;
+        inset: 0 0 auto 0;
+        flex-direction: row;
+        align-items: center;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg);
+      }
+      main { margin-top: 72px; }
+      .gallery-row { padding-top: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <h1>Nishant Korapati<br>Photography</h1>
+    <nav>
+      <a href="#coveted-woman" class="nav-link">Coveted Woman</a>
+      <a href="#blackwhite" class="nav-link">Black &amp; White</a>
+    </nav>
+    <div class="social">
+      <p>&copy; 2025 YourName</p>
+      <a href="https://instagram.com/yourhandle" target="_blank" rel="noopener noreferrer">Instagram</a>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main>
+    <!-- Coveted Woman Series -->
+    <section class="gallery-row" id="coveted-woman">
+      <img src="images/coveted1.jpg" alt="Coveted Woman 1">
+      <img src="images/coveted2.jpg" alt="Coveted Woman 2">
+      <img src="images/coveted3.jpg" alt="Coveted Woman 3">
+      <img src="images/coveted4.jpg" alt="Coveted Woman 4">
+    </section>
+
+    <!-- Black & White Series -->
+    <section class="gallery-row" id="blackwhite">
+      <img src="images/bw1.jpg" alt="Black &amp; White 1">
+      <img src="images/bw2.jpg" alt="Black &amp; White 2">
+      <img src="images/bw3.jpg" alt="Black &amp; White 3">
+      <img src="images/bw4.jpg" alt="Black &amp; White 4">
+    </section>
+  </main>
+
+  <!-- ===== LIGHTBOX ===== -->
+  <div class="lightbox" id="lightbox"><img src="" alt=""></div>
+
+  <!-- ===== JAVASCRIPT ===== -->
+  <script>
+    // 1. HTTPS redirect (skip localhost)
+    (() => {
+      if (location.protocol === 'http:' && !['localhost','127.0.0.1'].includes(location.hostname)) {
+        location.replace('https://' + location.host + location.pathname + location.search + location.hash);
+      }
+    })();
+
+    // 2. Lightbox
+    (() => {
+      const lb = document.getElementById('lightbox');
+      document.querySelectorAll('.gallery-row img').forEach(img => {
+        img.addEventListener('click', () => {
+          lb.classList.add('active');
+          lb.querySelector('img').src = img.src;
+          lb.querySelector('img').alt = img.alt;
+        });
+      });
+      lb.addEventListener('click', () => lb.classList.remove('active'));
+    })();
+
+    // 3. Nav link scroll & active state
+    (() => {
+      const links = document.querySelectorAll('.nav-link');
+      links.forEach(link => {
+        link.addEventListener('click', e => {
+          e.preventDefault();
+          const target = document.querySelector(link.getAttribute('href'));
+          target.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+          setActive(link);
+        });
+      });
+      const setActive = link => {
+        links.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+      };
+      // Highlight first link on load
+      setActive(links[0]);
+    })();
+  </script>
+</body>
+</html>
